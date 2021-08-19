@@ -2,9 +2,5 @@
 
 struct executing {
     // ids da tabela de processos
+    int id;
 };
-
-
-void executing_init();
-void executing_destroy();
-void executing_set();

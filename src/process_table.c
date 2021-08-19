@@ -34,6 +34,3 @@ void process_table_destroy(process_table_t *pt) {
     *pt = NULL;
 }
 
-
-
-// void process_table_ SOMETHING

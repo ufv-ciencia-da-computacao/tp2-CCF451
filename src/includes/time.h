@@ -3,4 +3,6 @@
 
 typedef int time_t;
 
+void time_init(time_t *time);
+
 #endif
