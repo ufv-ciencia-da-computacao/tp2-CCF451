@@ -1,7 +1,10 @@
 #ifndef __BLOCKED_H__
 #define __BLOCKED_H__
 
-typedef struct blocked * blocked_t;
+typedef struct{
+    int *pid;
+    int front, back;
+} blocked_t;
 
 void blocked_init(blocked_t *blocked, int size);
 void blocked_destroy(blocked_t *blocked);
