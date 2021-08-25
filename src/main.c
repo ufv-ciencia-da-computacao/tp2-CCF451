@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include "./includes/process_table.h"
 #include "./includes/cpu.h"
+#include "./includes/ready.h"
 
 int main() {
-
-    process_table_t pt;
+    ready ready;
+    //ready_init(&ready);
 
 
 
