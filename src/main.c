@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include "./includes/process_table.h"
-#include "./includes/cpu.h"
-#include "./includes/ready.h"
+#include "./includes/time.h"
 
 int main() {
-    ready ready;
-    //ready_init(&ready);
 
-
+    time_t time;
+    time_init(&time);
+    printf("%d\n", time_now(&time));
+    time_tick(&time);
+    printf("%d\n", time_now(&time));
 
     return 0;
 }
