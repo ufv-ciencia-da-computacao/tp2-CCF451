@@ -1,4 +1,4 @@
-#include "./includes/blocked.h"
+#include "includes/blocked.h"
 
 static int blocked_max(blocked_t * blocked){
     return sizeof(blocked)/sizeof(int) - 1;
@@ -19,13 +19,13 @@ void blocked_destroy(blocked_t *blocked){
 }
 
 void blocked_push(blocked_t *blocked, int pid){
-    blocked[blocked->back++] = pid;
+    blocked->pid[blocked->back++] = pid;
     if(blocked->back > blocked_max(blocked)) blocked->back = 0;
     ++blocked->size;
 
 }
 void blocked_pop(blocked_t *blocked){
-    blocked->pid[blocked->front] = NULL;
+    blocked->pid[blocked->front] = -1;
     if(++blocked->front > blocked_max(blocked)) blocked->front = 0;
     --blocked->size;
 }

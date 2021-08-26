@@ -1,9 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef __BLOCKED_H__
 #define __BLOCKED_H__
 
 typedef struct{
     int *pid;
     int front, back;
+	int size;
 } blocked_t;
 
 void blocked_init(blocked_t *blocked, int size);
