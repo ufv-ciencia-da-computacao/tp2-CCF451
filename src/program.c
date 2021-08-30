@@ -47,6 +47,7 @@ void program_init(program_t* program,char* file){
 void program_destroy(program_t* program){
   free(program->instructions);
   program->tam=0;
+  program->instructions=NULL;
 }
 instruction_t program_get(program_t* program,int index){
   return program->instructions[index];
