@@ -21,7 +21,6 @@ void program_init(program_t* program,char* file){
     char parameter1[200];
     char parameter2[200];
     if(fscanf(f,"%c",&c)==EOF) break;
-    //fscanf(f,"%c",&c);
     program->instructions[contador].name=c;
     if(c=='T'){
        strcpy(program->instructions[contador].parameter1,"");
@@ -52,6 +51,14 @@ void program_destroy(program_t* program){
 instruction_t program_get(program_t* program,int index){
   return program->instructions[index];
 }
+program_t program_copy(program_t* program){
+  program_t newProgram;
+  newProgram.instructions=(instruction_t*) malloc(program->tam*sizeof(instruction_t));
+  memcpy(newProgram.instructions,program->instructions,program->tam*sizeof(instruction_t));
+  newProgram.tam= program->tam;
+  return newProgram;
+}
+
 void program_to_string(program_t* program){
   printf("Tamanho: %d\n",program->tam );
   for(int i=0;i<program->tam;i++){
