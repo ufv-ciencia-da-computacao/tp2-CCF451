@@ -22,6 +22,7 @@ int  data_get(data_t *data, int index) {
 
 void data_copy(data_t *dest, data_t orig) {
     int i;
+    if(dest->size > 0) data_destroy(dest);
     data_init(dest, orig.size);
     for(i=0; i<orig.size; ++i) {
         dest->data[i] = orig.data[i];
