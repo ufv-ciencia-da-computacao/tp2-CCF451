@@ -36,4 +36,13 @@ int process_table_add(process_table_t *pt, int parent_pid, int program_counter, 
 void process_table_update(process_table_t *pt, int index, int program_counter, program_t program, data_t data, int priority, process_state state, time_t used_time);
 void process_table_remove(process_table_t *pt, int index);
 
+int process_table_get_parent_pid(process_table_t *pt, int index);
+int process_table_get_program_counter(process_table_t *pt, int index);
+program_t process_table_get_program(process_table_t *pt, int index);
+data_t process_table_get_data(process_table_t *pt, int index);
+int process_table_get_priority(process_table_t *pt, int index);
+process_state process_table_get_state(process_table_t *pt, int index);
+time_t process_table_get_begin_time(process_table_t *pt, int index);
+time_t process_table_get_used_time(process_table_t *pt, int index);
+
 #endif

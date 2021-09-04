@@ -60,3 +60,36 @@ void process_table_remove(process_table_t *pt, int index) {
     data_destroy(&pt->data[index].process.data);
     program_destroy(&pt->data[index].process.program);
 }
+
+
+int process_table_get_parent_pid(process_table_t *pt, int index) {
+    return pt->data[index].process.pid;
+}
+
+int process_table_get_program_counter(process_table_t *pt, int index) {
+    return pt->data[index].process.program_counter;
+}
+
+program_t process_table_get_program(process_table_t *pt, int index) {
+    return pt->data[index].process.program;
+}
+
+data_t process_table_get_data(process_table_t *pt, int index) {
+    return pt->data[index].process.data;
+}
+
+int process_table_get_priority(process_table_t *pt, int index) {
+    return pt->data[index].process.priority;
+}
+
+process_state process_table_get_state(process_table_t *pt, int index) {
+    return pt->data[index].process.state;
+}
+
+time_t process_table_get_begin_time(process_table_t *pt, int index) {
+    return pt->data[index].process.begin_time;
+}
+
+time_t process_table_get_used_time(process_table_t *pt, int index) {
+    return pt->data[index].process.used_time;
+}
