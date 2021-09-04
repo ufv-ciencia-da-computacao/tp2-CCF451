@@ -2,14 +2,14 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-void ready_init(ready *ready){
+void ready_init(ready_t *ready){
   ready->hPriority=NULL;
   ready->mPriority=NULL;
   ready->lPriority=NULL;
   ready->vLPriority=NULL;
 }
 
-void ready_destroy(ready *ready){
+void ready_destroy(ready_t *ready){
   queue_destroy(ready->hPriority);
   queue_destroy(ready->mPriority);
   queue_destroy(ready->lPriority);
@@ -21,7 +21,7 @@ void ready_destroy(ready *ready){
   ready_init(ready);
 }
 
-void ready_push(ready *ready, int index,int priority){
+void ready_push(ready_t *ready, int index,int priority){
   queuePriority *aux;
 
   if(priority==0){
@@ -64,7 +64,7 @@ void ready_push(ready *ready, int index,int priority){
   }
 }
 
-void ready_pop(ready *ready){
+void ready_pop(ready_t *ready){
   if(ready->hPriority!=NULL){
     ready->hPriority=queue_pop(ready->hPriority);
   }
@@ -79,7 +79,7 @@ void ready_pop(ready *ready){
   }
 }
 
-int  ready_top(ready *ready){
+int  ready_top(ready_t *ready){
   if(ready->hPriority!=NULL){
     return ready->hPriority->index;
   }
@@ -95,7 +95,7 @@ int  ready_top(ready *ready){
     }
   }
 
-int  ready_size(ready *ready){
+int  ready_size(ready_t *ready){
     int contador=0;
     if(ready->hPriority!=NULL){
       contador+= queue_size(ready->hPriority);
@@ -113,7 +113,7 @@ int  ready_size(ready *ready){
     return contador;
   }
 
-int ready_empty(ready *ready){
+int ready_empty(ready_t *ready){
   return ready_size(ready)==0;
 }
 
@@ -166,7 +166,7 @@ void add_index(queuePriority *queue,int index){
   queue_init(aux,index);
 }
 
-void toString(ready *ready){
+void toString(ready_t *ready){
   char s1[10000];
   char s2[10000];
   char s3[10000];
