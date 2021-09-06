@@ -1,7 +1,7 @@
 #ifndef __EXECUTING_H__
 #define __EXECUTING_H__
 
-typedef struct executing * executing_t;
+typedef struct executing executing_t;
 
 struct executing {
     // ids da tabela de processos

@@ -1,27 +1,23 @@
 #ifndef __CPU_H__
 #define __CPU_H__
 
-typedef struct cpu * cpu_t;
+#include "data.h"
+#include "time.h"
+#include "program.h"
+#include "ready.h"
+#include "blocked.h"
+#include "process_table.h"
+#include "executing.h"
 
-struct cpu {
+typedef struct cpu {
     // program_ptr,
     int program_counter;
     int pid;
     data_t data_memory_ptr;
     program_t program_ptr;
-    time_t quantum;
-    time_t time_used;
-};
-
-#include "./includes/cpu.h"
-#include "./includes/data.h"
-#include "./includes/time.h"
-#include "./includes/program.h"
-#include "./includes/ready.h"
-#include "./includes/blocked.h"
-#include "./includes/process_table.h"
-#include "./includes/executing.h"
-#include <stdio.h>
+    time quantum;
+    time time_used;
+} cpu_t;
 
 void   cpu_init(cpu_t *cpu, program_t program, data_t data);
 void   cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table);

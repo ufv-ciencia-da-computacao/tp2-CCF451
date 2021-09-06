@@ -1,5 +1,6 @@
 #include "./includes/process_table.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void process_table_init(process_table_t *pt, int size) {
     pt->data = malloc(size * sizeof(*pt->data));
@@ -22,7 +23,7 @@ void process_table_destroy(process_table_t *pt) {
     pt->size = 0;
 }
 
-int process_table_add(process_table_t *pt, int parent_pid, int program_counter, program_t program, data_t data, int priority, time_t begin_time) {
+int process_table_add(process_table_t *pt, int parent_pid, int program_counter, program_t program, data_t data, int priority, time begin_time) {
     /*find first available position and add this process */
     int i;
     int index = -1;
@@ -45,7 +46,7 @@ int process_table_add(process_table_t *pt, int parent_pid, int program_counter, 
     return index;
 }
 
-void process_table_update(process_table_t *pt, int index, int program_counter, program_t program, data_t data, int priority, process_state state, time_t used_time) {
+void process_table_update(process_table_t *pt, int index, int program_counter, program_t program, data_t data, int priority, process_state state, time used_time) {
     pt->data[index].process.program_counter = program_counter;
     program_destroy(&pt->data[index].process.program);
     pt->data[index].process.program = program_copy(&program);
@@ -87,10 +88,10 @@ process_state process_table_get_state(process_table_t *pt, int index) {
     return pt->data[index].process.state;
 }
 
-time_t process_table_get_begin_time(process_table_t *pt, int index) {
+time process_table_get_begin_time(process_table_t *pt, int index) {
     return pt->data[index].process.begin_time;
 }
 
-time_t process_table_get_used_time(process_table_t *pt, int index) {
+time process_table_get_used_time(process_table_t *pt, int index) {
     return pt->data[index].process.used_time;
 }
