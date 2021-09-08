@@ -3,27 +3,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void   cpu_init(cpu_t *cpu, program_t program, data_t data) {
+void   cpu_init(cpu_t *cpu, program_t program, data_t data, int program_counter, int priority) {
     cpu->time_used=0;
     cpu->data_memory_ptr = data_copy(&data);
     cpu->program_ptr = program_copy(&program);
     cpu->program_counter = 0;
+    cpu->quantum = 1 << priority;
 }
 
 void create_process(cpu_t *cpu, ready_t *ready, process_table_t *table, executing_t *exe) {
     int pid = executing_get(exe);
-    time_t time = 9999; // tempo atual
+    time_t time = cpu->time_used; // tempo atual
     process_table_add(table, pid, cpu->program_counter+1, process_table_get_program(table, pid), cpu->data_memory_ptr, process_table_get_priority(table, pid), time);
 
     cpu->time_used = 0;
 }
 
-void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table) {
+void context_switch(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table, process_state new_state, process_state old_state, scheduler sched_function) {
+    int pid = executing_get(exe);
+    int priority = process_table_get_priority(table, pid);
+
+    if (old_state == state_executing && new_state == state_blocked) {
+        printf("blocked\n");
+        blocked_push(blocked, pid);
+        priority += priority ? -1 : 0;
+    } else if (old_state == state_executing && new_state == state_terminated) {
+        process_table_remove(table, pid);
+    } else {
+        process_table_update(table, pid, cpu->program_counter, process_table_get_program(table, pid), cpu->data_memory_ptr, priority, new_state, cpu->time_used);
+    }
+
+    sched_function(cpu, ready, exe, table);
+}
+
+void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table, scheduler sched_function) {
     int index, value;
     char* string;
 
     if (cpu->program_counter != -1) {
-        instruction_t inst = cpu->program_ptr.instructions[cpu->program_counter];
+        instruction_t inst = program_get(&(cpu->program_ptr), cpu->program_counter);
         if (inst.name == 'D') {
             index = atoi(inst.parameter1);
             cpu->data_memory_ptr.data[index] = 0;
@@ -58,12 +76,12 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
 
         } else if (inst.name == 'B') {
             cpu->program_counter++;
-            cpu_context_switch(cpu, exe, ready, blocked, table, state_blocked, state_executing);
+            context_switch(cpu, exe, ready, blocked, table, state_blocked, state_executing, sched_function);
 
         } else if (inst.name == 'T') {
             data_destroy(&cpu->data_memory_ptr);
             cpu->program_counter++;
-            cpu_context_switch(cpu, exe, ready, blocked, table, state_terminated, state_executing);
+            context_switch(cpu, exe, ready, blocked, table, state_terminated, state_executing, sched_function);
 
         } else if (inst.name=='F') {
             create_process(cpu, ready, table, exe);
@@ -76,40 +94,16 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
 
             program_init(&(cpu->program_ptr), string);
         }
-    }
-}
+    }  
 
-void cpu_context_switch(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table, process_state new_state, process_state old_state) {
-    int pid = executing_get(exe);
-
-    if (old_state == state_executing && new_state == state_blocked) {
-        printf("blocked\n");
-        blocked_push(blocked, pid);
-    }
-
-    if (old_state == state_executing && new_state == state_terminated) {
-        // do nothing
-    }
-    
-    process_table_update(table, pid, cpu->program_counter, process_table_get_program(table, pid), cpu->data_memory_ptr, process_table_get_priority(table, pid), new_state, cpu->time_used);
-    
-    int pid_ready = ready_top(ready);
-    
-    if (pid_ready==-1) {
-        executing_destroy(exe);  
-        cpu->program_counter = -1;
+    if (cpu->time_used >= cpu->quantum) {
+        context_switch(cpu, exe, ready, blocked, table, state_ready, state_executing, sched_function);
     } else {
-        executing_set(exe, pid_ready);
-    
-        cpu->data_memory_ptr = process_table_get_data(table, pid_ready);
-        cpu->program_counter = process_table_get_program_counter(table, pid_ready);
-        cpu->time_used = process_table_get_used_time(table, pid_ready);
-
-        process_table_update(table, pid_ready, process_table_get_program_counter(table, pid_ready), process_table_get_program(table, pid_ready), process_table_get_data(table, pid_ready), process_table_get_priority(table, pid_ready), state_executing, process_table_get_used_time(table, pid_ready));
-
-        ready_pop(ready);
+        cpu->time_used++;  
     }
+
 }
+
 
 void   cpu_destroy(cpu_t *cpu);
 void   cpu_update(cpu_t *cpu, data_t data_memory, int quantum, int program_counter) {

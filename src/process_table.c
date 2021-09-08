@@ -35,7 +35,7 @@ int process_table_add(process_table_t *pt, int parent_pid, int program_counter, 
             pt->data[index].process.parent_pid = parent_pid;
             pt->data[index].process.program_counter = program_counter;
             pt->data[index].process.program = program_copy(&program);
-            pt->data[i].process.data = data_copy(&data);
+            pt->data[index].process.data = data_copy(&data);
             pt->data[index].process.priority = priority;
             pt->data[index].process.state = state_ready;
             pt->data[index].process.begin_time = begin_time;
