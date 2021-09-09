@@ -1,6 +1,6 @@
 #include "./includes/ready.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h> 
 
 void ready_init(ready_t *ready){
   ready->hPriority=NULL;

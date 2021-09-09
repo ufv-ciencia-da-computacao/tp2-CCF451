@@ -14,7 +14,7 @@ void   cpu_init(cpu_t *cpu, program_t program, data_t data, int program_counter,
 
 void create_process(cpu_t *cpu, ready_t *ready, process_table_t *table, executing_t *exe) {
     int pid = executing_get(exe);
-    time_t time = cpu->time_used; // tempo atual
+    int time = cpu->time_used; // tempo atual
     process_table_add(table, pid, cpu->program_counter+1, process_table_get_program(table, pid), cpu->data_memory_ptr, process_table_get_priority(table, pid), time);
 
     cpu->time_used = 0;
@@ -37,7 +37,7 @@ void context_switch(cpu_t *cpu, executing_t *exe, process_table_t *table, proces
         int program_counter = process_table_get_program_counter(table, pid_sched);
         int priority = process_table_get_priority(table, pid_sched);
 
-        cpu_init(cpu, program, data, program_counter, priority, pid_sched);
+        cpu_init(cpu, program, data, program_counter, priority);
         process_table_update(table, pid_sched, program_counter, program, data, priority, state_executing, time_used);
     }
 }
@@ -45,7 +45,7 @@ void context_switch(cpu_t *cpu, executing_t *exe, process_table_t *table, proces
 void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table, scheduler sched_function) {
     int index, value;
     char* string;
-
+    //printf("%d\n", executing_get(exe));
     if (cpu->program_counter != -1) {
         int pid = executing_get(exe);
         instruction_t inst = program_get(&(cpu->program_ptr), cpu->program_counter);
@@ -78,12 +78,11 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
         } else if (inst.name == 'B') {
             int pid = executing_get(exe);
             blocked_push(blocked, pid);
-            process_table_set_priority(table, pid, );
-            int pid_sched = sched_function(cpu, executing, ready, table);
+            int pid_sched = sched_function(cpu, exe, ready, table, state_blocked);
             context_switch(cpu, exe, table, state_blocked, pid_sched);
         } else if (inst.name == 'T') {
             data_destroy(&cpu->data_memory_ptr);
-            int pid_sched = sched_function(cpu, executing, ready, table);
+            int pid_sched = sched_function(cpu, exe, ready, table, state_terminated);
             context_switch(cpu, exe, table, state_terminated, pid_sched);
             process_table_remove(table, pid);
         } else if (inst.name=='F') {
@@ -96,8 +95,9 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
             program_init(&(cpu->program_ptr), string);
         }
 
-        int pid_sched = sched_function(cpu, executing, ready, table);
-        if (pid_sched != pid) {
+        int pid_sched = sched_function(cpu, exe, ready, table, state_executing);
+
+        if (pid_sched != pid && pid_sched != -1) {
             context_switch(cpu, exe, table, state_ready, pid_sched);
         }
     }
@@ -112,7 +112,7 @@ void   cpu_update(cpu_t *cpu, data_t data_memory, int quantum, int program_count
 int    cpu_get_program_counter(cpu_t *cpu) {
     return cpu->program_counter;
 }
-time_t cpu_get_time_used(cpu_t *cpu) {
+int cpu_get_time_used(cpu_t *cpu) {
     return cpu->time_used;
 }
 
@@ -123,10 +123,9 @@ void cpu_add_quantum_time(cpu_t *cpu) {
 void cpu_print_to_file(cpu_t *cpu,FILE *file){
   char str[100000];
   data_print_to_string(&cpu->data_memory_ptr,str);
-  fprintf(file, "PROGRAM COUNTER \t PID \t DATA MEMORY \t TIME USED \t QUANTUM\n");
-  fprintf(file, "%d \t %d \t %s \t %d \t %d",
+  fprintf(file, "PROGRAM COUNTER \t DATA MEMORY \t TIME USED \t QUANTUM\n");
+  fprintf(file, "%d \t %s \t %d \t %d",
   cpu->program_counter,
-  cpu->pid,
   str,
   cpu->time_used,
   cpu->quantum);

@@ -86,23 +86,28 @@ void process_manager_init(process_manager_t *pm, char *filename) {
     cpu_init(&(pm->cpu), program, data, 0, 0);
 }
 
-int weird_round_robin(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table) {
+int weird_round_robin(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table, process_state state) {
+    //printf("%d\n", cpu->program_ptr.tam);
+    int priority = process_table_get_priority(table, executing_get(exe));
     if (cpu->time_used >= cpu->quantum) {
-        process_table_set_priority(table, executing_get(exe), (priority ? priority-1 : priority));
+        process_table_set_priority(table, executing_get(exe), (priority < 3 ? priority+1 : priority));
         int pid_ready = ready_top(ready);
-        ready_pop(ready);
+        if(pid_ready != -1) ready_pop(ready);
         return pid_ready;
     }
+    if(state == state_blocked) process_table_set_priority(table, executing_get(exe), (priority? priority-1 : priority));
     return executing_get(exe);
 }
 
-int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table){
-    if (cpu->program_counter >= process_table_get_program(table, executing_get(exe)).tam) {
+int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table, process_state state){
+    // printf("%d\n", cpu->program_ptr.tam);
+    if(cpu->program_counter >= cpu->program_ptr.tam) {
         int pid_ready = get_min_time_process(ready, table);
-        ready_pop_min_time(ready, pid_ready);
+        if(pid_ready != -1) ready_pop_min_time(ready, pid_ready);
 
         return pid_ready;
-    } 
+        return -1;
+    }
     return executing_get(exe);
 }
 
@@ -110,7 +115,7 @@ void process_manager_main(process_manager_t *pm, FILE *file, int op_policy) {
     char c;
 
     scheduler sched_function = op_policy ? weird_round_robin : sjf_sched;
-    
+
     while (1) {
         c = process_manager_read_next_instruction(file);
 
