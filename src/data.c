@@ -29,3 +29,15 @@ data_t data_copy(data_t *orig) {
     }
     return dest;
 }
+
+void data_print_to_file(data_t *data, FILE *file) {
+
+}
+
+void data_print_to_string(data_t *data, char *str) {
+    int i;
+    for(int i=0; i<data->size; ++i) {
+        if(i) printf(",");
+        sprintf(str, "%d", data->data[i]);
+    }
+}
