@@ -15,8 +15,10 @@ void   cpu_init(cpu_t *cpu, program_t program, data_t data, int program_counter,
 void create_process(cpu_t *cpu, ready_t *ready, process_table_t *table, executing_t *exe) {
     int pid = executing_get(exe);
     int time = cpu->time_used; // tempo atual
-    process_table_add(table, pid, cpu->program_counter+1, process_table_get_program(table, pid), cpu->data_memory_ptr, process_table_get_priority(table, pid), time);
+    int priority = process_table_get_priority(table, pid);
+    int new = process_table_add(table, pid, cpu->program_counter+1, process_table_get_program(table, pid), cpu->data_memory_ptr, priority, time);
 
+    ready_push(ready, new, priority);
     cpu->time_used = 0;
 }
 
@@ -45,7 +47,6 @@ void context_switch(cpu_t *cpu, executing_t *exe, process_table_t *table, proces
 void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready, blocked_t *blocked, process_table_t *table, scheduler sched_function) {
     int index, value;
     char* string;
-    //printf("%d\n", executing_get(exe));
     if (cpu->program_counter != -1) {
         int pid = executing_get(exe);
         instruction_t inst = program_get(&(cpu->program_ptr), cpu->program_counter);
@@ -97,6 +98,7 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
 
         int pid_sched = sched_function(cpu, exe, ready, table, state_executing);
 
+        printf("pid_sched: %d\n", pid_sched);
         if (pid_sched != pid && pid_sched != -1) {
             context_switch(cpu, exe, table, state_ready, pid_sched);
         }

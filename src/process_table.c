@@ -54,7 +54,7 @@ void process_table_update(process_table_t *pt, int index, int program_counter, p
     pt->data[index].process.data = data;
     pt->data[index].process.priority = priority;
     pt->data[index].process.state = state;
-    pt->data[index].process.used_time = used_time;
+    pt->data[index].process.used_time += used_time;
 }
 
 void process_table_remove(process_table_t *pt, int index) {

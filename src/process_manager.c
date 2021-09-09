@@ -68,7 +68,7 @@ static void ready_pop_min_time(ready_t *ready, int pid){
 char process_manager_read_next_instruction(FILE* file) {
     FILE *f;
     char c;
-    fscanf(file, "%c", c);
+    fscanf(file, "%c", &c);
     return c;
 }
 
