@@ -15,15 +15,17 @@ void process_table_init(process_table_t *pt, int size) {
 void process_table_destroy(process_table_t *pt) {
     int i;
     for(i=0; i<pt->size; ++i) {
-        program_destroy(&pt->data[i].process.program);
-        data_destroy(&pt->data[i].process.data);
+        if(!pt->data[i].available) {
+            program_destroy(&pt->data[i].process.program);
+            data_destroy(&pt->data[i].process.data);
+        }
     }
     free(pt->data);
     pt->data = NULL;
     pt->size = 0;
 }
 
-int process_table_add(process_table_t *pt, int parent_pid, int program_counter, program_t program, data_t data, int priority, time begin_time) {
+int process_table_add(process_table_t *pt, int parent_pid, int program_counter, program_t program, data_t data, int priority, time_t begin_time) {
     /*find first available position and add this process */
     int i;
     int index = -1;
@@ -34,8 +36,8 @@ int process_table_add(process_table_t *pt, int parent_pid, int program_counter, 
             pt->data[index].process.pid = index;
             pt->data[index].process.parent_pid = parent_pid;
             pt->data[index].process.program_counter = program_counter;
-            pt->data[index].process.program = program_copy(&program);
-            pt->data[index].process.data = data_copy(&data);
+            pt->data[index].process.program = program;
+            pt->data[index].process.data = data;
             pt->data[index].process.priority = priority;
             pt->data[index].process.state = state_ready;
             pt->data[index].process.begin_time = begin_time;
@@ -46,12 +48,10 @@ int process_table_add(process_table_t *pt, int parent_pid, int program_counter, 
     return index;
 }
 
-void process_table_update(process_table_t *pt, int index, int program_counter, program_t program, data_t data, int priority, process_state state, time used_time) {
+void process_table_update(process_table_t *pt, int index, int program_counter, program_t program, data_t data, int priority, process_state state, time_t used_time) {
     pt->data[index].process.program_counter = program_counter;
-    program_destroy(&pt->data[index].process.program);
-    pt->data[index].process.program = program_copy(&program);
-    data_destroy(&pt->data[index].process.data);
-    pt->data[index].process.data = data_copy(&data);
+    pt->data[index].process.program = program;
+    pt->data[index].process.data = data;
     pt->data[index].process.priority = priority;
     pt->data[index].process.state = state;
     pt->data[index].process.used_time = used_time;
@@ -63,6 +63,37 @@ void process_table_remove(process_table_t *pt, int index) {
     program_destroy(&pt->data[index].process.program);
 }
 
+void process_table_set_program_counter(process_table_t *pt, int index, int program_counter) {
+    pt->data[index].process.program_counter = program_counter;
+}
+
+void process_table_set_program(process_table_t *pt, int index, program_t program) {
+    pt->data[index].process.program = program;
+}
+
+void process_table_set_data(process_table_t *pt, int index, data_t data) {
+    pt->data[index].process.data = data;
+}
+
+void process_table_set_priority(process_table_t *pt, int index, int priority) {
+    pt->data[index].process.priority = priority;
+}
+
+void process_table_set_begin_time(process_table_t *pt, int index, time_t begin_time) {
+    pt->data[index].process.begin_time = begin_time;
+}
+
+void process_table_set_used_time(process_table_t *pt, int index, time_t used_time) {
+    pt->data[index].process.used_time = used_time;
+}
+
+void process_table_set_state(process_table_t *pt, int index, process_state state) {
+    pt->data[index].process.state = state;
+}
+
+void process_table_set_parent_pid(process_table_t *pt, int index, int parent_pid) {
+    pt->data[index].process.parent_pid = parent_pid;
+}
 
 int process_table_get_parent_pid(process_table_t *pt, int index) {
     return pt->data[index].process.pid;
@@ -73,11 +104,11 @@ int process_table_get_program_counter(process_table_t *pt, int index) {
 }
 
 program_t process_table_get_program(process_table_t *pt, int index) {
-    return program_copy(&pt->data[index].process.program);
+    return pt->data[index].process.program
 }
 
 data_t process_table_get_data(process_table_t *pt, int index) {
-    return data_copy(&pt->data[index].process.data);
+    return pt->data[index].process.data;
 }
 
 int process_table_get_priority(process_table_t *pt, int index) {
@@ -88,11 +119,11 @@ process_state process_table_get_state(process_table_t *pt, int index) {
     return pt->data[index].process.state;
 }
 
-time process_table_get_begin_time(process_table_t *pt, int index) {
+time_t process_table_get_begin_time(process_table_t *pt, int index) {
     return pt->data[index].process.begin_time;
 }
 
-time process_table_get_used_time(process_table_t *pt, int index) {
+time_t process_table_get_used_time(process_table_t *pt, int index) {
     return pt->data[index].process.used_time;
 }
 
