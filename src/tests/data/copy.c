@@ -9,7 +9,7 @@ int main() {
     data_set(&data, 2, 0);
     data_set(&data, 1, 1);
 
-    data_copy(&data1, data);
+    data1 = data_copy(&data);
 
     printf("%d\n", data_get(&data1, 1));
 
