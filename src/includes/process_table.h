@@ -13,20 +13,18 @@ typedef enum {
 } process_state;
 
 typedef struct {
-    int pid;
-    int parent_pid;
-    int program_counter;
-    program_t program;
-    data_t data;
-    int priority;
-    process_state state;
-    time begin_time;
-    time used_time;
-} process_t;
-
-typedef struct {
     struct {
-        process_t process;
+        struct {
+            int pid;
+            int parent_pid;
+            int program_counter;
+            program_t program;
+            data_t data;
+            int priority;
+            process_state state;
+            time begin_time;
+            time used_time;
+        } process;
         int available;
     } *data;
     int size;
@@ -47,5 +45,8 @@ int process_table_get_priority(process_table_t *pt, int index);
 process_state process_table_get_state(process_table_t *pt, int index);
 time process_table_get_begin_time(process_table_t *pt, int index);
 time process_table_get_used_time(process_table_t *pt, int index);
+
+// to be implemented
+void process_table_print_to_file(process_table_t *pt, FILE *file);
 
 #endif

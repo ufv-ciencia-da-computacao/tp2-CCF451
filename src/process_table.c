@@ -95,3 +95,15 @@ time process_table_get_begin_time(process_table_t *pt, int index) {
 time process_table_get_used_time(process_table_t *pt, int index) {
     return pt->data[index].process.used_time;
 }
+
+void process_table_print_to_file(process_table_t *pt, FILE *file) {
+    int i;
+    fprintf(file, "PID, PARENT PID, PROGRAM COUNTER, DATA ARRAY, PRIORITY, STATE, BEGIN TIME, USED TIME\n");
+    char str[100000];
+    for(i=0; i<pt->size; ++i) {
+        if(!pt->data[i].available) {
+            data_print_to_string(&pt->data[i].process.data, str);
+            fprintf(file, "%d, %d, %d, %s, %d, %s, %d, %d\n", 10, 20, 30, str);
+        }
+    }
+}
