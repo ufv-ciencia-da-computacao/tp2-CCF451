@@ -98,12 +98,24 @@ time process_table_get_used_time(process_table_t *pt, int index) {
 
 void process_table_print_to_file(process_table_t *pt, FILE *file) {
     int i;
-    fprintf(file, "PID, PARENT PID, PROGRAM COUNTER, DATA ARRAY, PRIORITY, STATE, BEGIN TIME, USED TIME\n");
-    char str[100000];
+    fprintf(file, "PID\tPARENT PID\tPROGRAM COUNTER\tDATA ARRAY\tPRIORITY\tSTATE\tBEGIN TIME\tUSED TIME\n");
+    char str_state[20];
+    int pid, par_pid, pc, priority, begin, used;
     for(i=0; i<pt->size; ++i) {
         if(!pt->data[i].available) {
-            data_print_to_string(&pt->data[i].process.data, str);
-            fprintf(file, "%d, %d, %d, %s, %d, %s, %d, %d\n", 10, 20, 30, str);
+            pid = pt->data[i].process.pid;
+            par_pid = pt->data[i].process.parent_pid;
+            pc = pt->data[i].process.program_counter;
+            priority = pt->data[i].process.priority;
+            begin = pt->data[i].process.begin_time;
+            used = pt->data[i].process.used_time;
+            if(pt->data[i].process.state == state_blocked) sprintf(str_state, "blocked");
+            else if(pt->data[i].process.state == state_executing) sprintf(str_state, "executing");
+            else if(pt->data[i].process.state == state_ready) sprintf(str_state, "ready");
+            else if(pt->data[i].process.state == state_terminated) sprintf(str_state, "terminated");
+            fprintf(file, "%d\t%d\t%d\t", pid, par_pid, pc);
+            data_print_to_file(&pt->data[i].process.data, file);
+            fprintf(file, "\t%d\t%s\t%d\t%d\n", priority, str_state, begin, used);
         }
     }
 }
