@@ -17,6 +17,6 @@ typedef struct process_manager {
 } process_manager_t;
 
 void process_manager_init(process_manager_t *pm, char *filename);
-
+void process_manager_main(process_manager_t *pm, FILE *file, int op_policy);
 
 #endif
