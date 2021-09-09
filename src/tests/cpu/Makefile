@@ -3,7 +3,7 @@
 all: init next_instruction clean
 
 init: executing.o ready.o blocked.o time.o data.o program.o process_table.o cpu.o init.o
-	gcc executing.o ready.o blocked.o time.o data.o program.o process_table.o cpu.o init.o -o init
+	gcc executing.o ready.o blocked.o time.o data.o program.o process_table.o cpu.o init.o  -o init
 
 next_instruction: executing.o ready.o blocked.o time.o data.o program.o process_table.o cpu.o next_instruction.o
 	gcc executing.o ready.o blocked.o time.o data.o program.o process_table.o cpu.o next_instruction.o -o next_instruction

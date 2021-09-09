@@ -29,4 +29,5 @@ int    cpu_get_program_counter(cpu_t *cpu);
 time_t cpu_get_time_used(cpu_t *cpu);
 void   cpu_add_quantum_time(cpu_t *cpu);
 void   weird_round_robin(cpu_t *cpu, ready_t *ready, executing_t *exe, process_table_t *table);
+void cpu_print_to_file(cpu_t *cpu,FILE *file);
 #endif

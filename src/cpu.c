@@ -1,4 +1,5 @@
 #include "./includes/cpu.h"
+#include "./includes/data.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,12 +95,12 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
 
             program_init(&(cpu->program_ptr), string);
         }
-    }  
+    }
 
     if (cpu->time_used >= cpu->quantum) {
         context_switch(cpu, exe, ready, blocked, table, state_ready, state_executing, sched_function);
     } else {
-        cpu->time_used++;  
+        cpu->time_used++;
     }
 
 }
@@ -120,4 +121,16 @@ time_t cpu_get_time_used(cpu_t *cpu) {
 
 void cpu_add_quantum_time(cpu_t *cpu) {
     cpu->time_used += cpu->quantum;
+}
+
+void cpu_print_to_file(cpu_t *cpu,FILE *file){
+  char str[100000];
+  data_print_to_string(&cpu->data_memory_ptr,str);
+  fprintf(file, "PROGRAM COUNTER \t PID \t DATA MEMORY \t TIME USED \t QUANTUM\n");
+  fprintf(file, "%d \t %d \t %s \t %d \t %d",
+  cpu->program_counter,
+  cpu->pid,
+  str,
+  cpu->time_used,
+  cpu->quantum);
 }
