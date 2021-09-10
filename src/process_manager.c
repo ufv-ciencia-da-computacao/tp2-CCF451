@@ -77,11 +77,14 @@ void process_manager_init(process_manager_t *pm, char *filename) {
     ready_init(&(pm->ready_queue));
     process_table_init(&(pm->table), TABLE_SIZE);
     executing_init(&(pm->exe));
-
+    
     program_t program;
     program_init(&program, filename);
     data_t data;
-    data_init(&data, 10);
+    data_init(&data, 0);
+
+    int pid = process_table_add(&pm->table, -1, 0, program, data, 0, 0);
+    executing_set(&pm->exe, pid);
 
     cpu_init(&(pm->cpu), program, data, 0, 0);
 }
@@ -96,6 +99,7 @@ int weird_round_robin(cpu_t *cpu, executing_t *exe, ready_t *ready, process_tabl
         if(pid_ready != -1) ready_pop(ready);
         return pid_ready;
     } else if(state == state_blocked) {
+        priority = process_table_get_priority(table, pid);
         process_table_set_priority(table, pid, (priority ? priority-1 : priority));
         pid_ready = ready_top(ready);
         if(pid_ready != -1) ready_pop(ready);
@@ -125,28 +129,34 @@ int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *tab
     return executing_get(exe);
 }
 
+void process_manager_execute_command(process_manager_t *pm, char c, int op_policy) {
+    scheduler sched_function = op_policy ? weird_round_robin : sjf_sched;
+
+    if (c == 'U') {
+            // fim da unidade de tempo
+        cpu_execute_next_instruction(&(pm->cpu), &(pm->exe), &(pm->ready_queue), &(pm->blocked_queue), &(pm->table), sched_function);
+    } else if (c == 'L') {
+        // desbloqueia o primeiro processo simulado na fila bloqueada
+        if (!blocked_empty(&(pm->blocked_queue))) {
+            int pid = blocked_front(&(pm->blocked_queue));
+            int priority = process_table_get_priority(&(pm->table), pid);
+            printf("pid: %d priority: %d moved from blocked\n", pid, priority);
+            blocked_pop(&(pm->blocked_queue));
+            ready_push(&(pm->ready_queue), pid, priority);
+        }
+    } else if (c == 'I') {
+        // imprime estado atual do sistema
+    } else if (c == 'M') {
+        // acaba
+    }
+}
+
 void process_manager_main(process_manager_t *pm, FILE *file, int op_policy) {
     char c;
-
-    scheduler sched_function = op_policy ? weird_round_robin : sjf_sched;
 
     while (1) {
         c = process_manager_read_next_instruction(file);
 
-        if (c == 'U') {
-            // fim da unidade de tempo
-            cpu_execute_next_instruction(&(pm->cpu), &(pm->exe), &(pm->ready_queue), &(pm->blocked_queue), &(pm->table), sched_function);
-        } else if (c == 'L') {
-            // desbloqueia o primeiro processo simulado na fila bloqueada
-            if (!blocked_empty(&(pm->blocked_queue))) {
-                int pid = blocked_front(&(pm->blocked_queue));
-                blocked_pop(&(pm->blocked_queue));
-                ready_push(&(pm->ready_queue), pid, process_table_get_priority(&(pm->table), pid));
-            }
-        } else if (c == 'I') {
-            // imprime estado atual do sistema
-        } else if (c == 'M') {
-            // acaba
-        }
+        process_manager_execute_command(pm, c, op_policy);
     }
 }

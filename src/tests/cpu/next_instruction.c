@@ -18,10 +18,11 @@ int main() {
 
     program_init(&program, "file1.txt");
     process_table_init(&table, 10);
-    int pid = process_table_add(&table, -1, 0, program, data, 0, 0);
     ready_init(&ready_queue);
     executing_init(&exe);
     blocked_init(&blocked_queue, 10);
+    
+    int pid = process_table_add(&table, -1, 0, program, data, 0, 0);
 
     data_init(&data, 10);
 
