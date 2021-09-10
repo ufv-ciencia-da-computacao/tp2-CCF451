@@ -1,4 +1,8 @@
 #include "./includes/process_manager.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 static int get_min_time_process(ready_t *ready, process_table_t *table){
     queuePriority *q = NULL;
@@ -130,6 +134,7 @@ int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *tab
 }
 
 void process_manager_execute_command(process_manager_t *pm, char c, int op_policy) {
+
     scheduler sched_function = op_policy ? weird_round_robin : sjf_sched;
 
     if (c == 'U') {
@@ -146,8 +151,17 @@ void process_manager_execute_command(process_manager_t *pm, char c, int op_polic
         }
     } else if (c == 'I') {
         // imprime estado atual do sistema
+        pid_t p = fork();
+        if(p < 0) {
+            fprintf(stderr, "Fork failed");
+            exit(255);
+        } else if(p > 0) {
+            // parent should continue execution
+        } else {
+            
+        }
     } else if (c == 'M') {
-        // acaba
+        exit(0);
     }
 }
 

@@ -2,14 +2,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <string.h>
-#include <sys/wait.h>
 #include "./src/includes/process_manager.h"
 
 int main() {
 
     int use_round_robin = 1;
-    int use_input_file = 0;
+    int use_input_file = 1;
+    int use_simple_output = 1;
 
     int fd[2];
 
@@ -25,17 +24,15 @@ int main() {
         return 0;
     } else if(p > 0) {
         FILE *file;
-        if(use_input_file) file = fopen("control.txt", "r");
+        if(use_input_file) file = fopen("control", "r");
         else file = stdin;
 
         char c;
-        while(1) {
-            fscanf(file, " %c", &c);
+        while(!feof(file)) {
+            fscanf(file, "%c ", &c);
             write(fd[1], &c, 1);
 
-            // printf("read: %c\n", c);
-
-            if(c == 'M') break;
+            printf("sent: %c\n", c);
         }
 
     } else {
@@ -43,7 +40,6 @@ int main() {
         process_manager_init(&pm, "init");
         
         while(1) {
-            // wait(NULL);
 
             char c;
             read(fd[0], &c, 1);
