@@ -88,15 +88,30 @@ void process_manager_init(process_manager_t *pm, char *filename) {
 
 int weird_round_robin(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table, process_state state) {
     //printf("%d\n", cpu->program_ptr.tam);
-    int priority = process_table_get_priority(table, executing_get(exe));
-    if (cpu->time_used >= cpu->quantum) {
-        process_table_set_priority(table, executing_get(exe), (priority < 3 ? priority+1 : priority));
-        int pid_ready = ready_top(ready);
+    int pid = executing_get(exe);
+    int pid_ready, priority;
+    printf("ready size: %d ready front: %d\n", ready_size(ready), ready_top(ready));
+    if(state == state_terminated) {
+        pid_ready = ready_top(ready);
+        if(pid_ready != -1) ready_pop(ready);
+        return pid_ready;
+    } else if(state == state_blocked) {
+        process_table_set_priority(table, pid, (priority ? priority-1 : priority));
+        pid_ready = ready_top(ready);
+        if(pid_ready != -1) ready_pop(ready);
+        return pid_ready;
+
+    } else if (cpu->time_used >= cpu->quantum) {
+        priority = process_table_get_priority(table, pid);
+        priority = (priority < 3 ? priority+1 : priority);
+        process_table_set_priority(table, pid, priority);
+        ready_push(ready, pid, priority);
+        
+        pid_ready = ready_top(ready);
         if(pid_ready != -1) ready_pop(ready);
         return pid_ready;
     }
-    if(state == state_blocked) process_table_set_priority(table, executing_get(exe), (priority? priority-1 : priority));
-    return executing_get(exe);
+    return pid;
 }
 
 int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table, process_state state){
@@ -106,7 +121,6 @@ int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *tab
         if(pid_ready != -1) ready_pop_min_time(ready, pid_ready);
 
         return pid_ready;
-        return -1;
     }
     return executing_get(exe);
 }

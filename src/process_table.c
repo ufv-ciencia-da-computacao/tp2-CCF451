@@ -59,8 +59,6 @@ void process_table_update(process_table_t *pt, int index, int program_counter, p
 
 void process_table_remove(process_table_t *pt, int index) {
     pt->data[index].available = 1;
-    data_destroy(&pt->data[index].process.data);
-    program_destroy(&pt->data[index].process.program);
 }
 
 void process_table_set_program_counter(process_table_t *pt, int index, int program_counter) {

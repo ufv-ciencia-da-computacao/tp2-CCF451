@@ -20,9 +20,9 @@ void program_init(program_t* program,char* file){
     char c;
     char parameter1[200];
     char parameter2[200];
-    if(fscanf(f,"%c",&c)==EOF) break;
+    if(fscanf(f,"%c ",&c)==EOF) break;
     program->instructions[contador].name=c;
-    if(c=='T'){
+    if(c=='T' || c == 'B'){
        strcpy(program->instructions[contador].parameter1,"");
        strcpy(program->instructions[contador].parameter2,"");
      }

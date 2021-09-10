@@ -28,8 +28,8 @@ int main() {
     cpu_t c;
     cpu_init(&c, program, data, 0, 0);
     executing_set(&exe, pid);
-    for (int i = 0; i < program.tam; i++) {
-        printf("%d %d %d\n", i, process_table_get_priority(&table, pid), executing_get(&exe));
+    for (int i = 0; i < 100; i++) {
+       //  printf("%d %d %d\n", i, process_table_get_priority(&table, pid), executing_get(&exe));
         cpu_execute_next_instruction(&c, &exe, &ready_queue, &blocked_queue, &table, weird_round_robin);
     }
     //printf("%d\n", executing_get(&exe));
@@ -50,6 +50,12 @@ int main() {
     // printf("\n");
     // //
     // printf("%d\n", c.data_memory_ptr.size);
+
+    process_table_destroy(&table);
+    blocked_destroy(&blocked_queue);
+    ready_destroy(&ready_queue);
+    executing_destroy(&exe);
+
 
     return 0;
 }

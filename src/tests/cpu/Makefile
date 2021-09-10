@@ -43,7 +43,7 @@ process_manager.o: ../../process_manager.c
 
 clean:
 ifeq ($(OS),Windows_NT)
-	del main
+#	del main
 	del *.o
 else
 	rm -rf *.o
