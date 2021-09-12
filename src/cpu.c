@@ -110,7 +110,6 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
             program_destroy(&cpu->program_ptr);
             program_init(&(cpu->program_ptr), inst.parameter1);
             cpu->program_counter = 0;
-
         } else {
             fprintf(stderr, "this is a invalid instruction: %d, %s, %s.\n", inst.name, inst.parameter1, inst.parameter2);
             assert(0);
@@ -122,7 +121,8 @@ void  cpu_execute_next_instruction(cpu_t *cpu, executing_t *exe, ready_t *ready,
         // printf("scheduled: %d\n", pid_sched);
         // printf("priority: %d\n", priority);
         // printf("instruction: %c\n", inst.name);
-        
+        // printf("program size: %d\n", cpu->program_ptr.tam);
+
         // printf("---------\n");
 
         if (pid_sched != pid) {
