@@ -1,6 +1,7 @@
 #include "./includes/ready.h"
 #include <stdio.h>
 #include <stdlib.h> 
+#include <string.h>
 
 void ready_init(ready_t *ready){
   ready->hPriority=NULL;
@@ -164,6 +165,40 @@ void add_index(queuePriority *queue,int index){
   aux->next=(queuePriority*) malloc(sizeof(queuePriority));
   aux=aux->next;
   queue_init(aux,index);
+}
+
+void print_queue_to_string(ptrQueueP queue, int priority, char *str) {
+  char temp[100];
+  while(queue != NULL) {
+    sprintf(temp, "(%d,%d)", priority, queue->index);
+    strcat(str, temp);
+    if(queue->next != NULL) strcat(str, ",");
+    queue = queue->next;
+  }
+}
+
+void ready_print_to_string(ready_t *ready, char *str) {
+  strcpy(str, "[");
+  int prev = 0;
+  if(ready->hPriority != NULL) {
+    print_queue_to_string(ready->hPriority, 0, str);
+    prev = 1;
+  }
+  if(ready->mPriority != NULL) {
+    if(prev) strcat(str, ",");
+    print_queue_to_string(ready->mPriority, 1, str);
+    prev = 1;
+  }
+  if(ready->lPriority != NULL) {
+    if(prev) strcat(str, ",");
+    print_queue_to_string(ready->lPriority, 2, str);
+    prev = 1;
+  }
+  if(ready->vLPriority != NULL) {
+    if(prev) strcat(str, ",");
+    print_queue_to_string(ready->vLPriority, 3, str);
+  }
+  strcat(str, "]");
 }
 
 void toString(ready_t *ready){

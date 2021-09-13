@@ -31,5 +31,6 @@ int queue_size(queuePriority *queue);//OK
 void add_index(queuePriority *queue,int index);//OK
 void toString(ready_t *ready);//OK
 
+void ready_print_to_string(ready_t *ready, char *str);
 
 #endif

@@ -3,28 +3,35 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "./src/includes/process_manager.h"
+#include <string.h>
 
 int main() {
 
-    int use_round_robin = 1;
-    int use_input_file = 1;
-    int use_simple_output = 1;
-    int op_policy = 0;
-    scheduler sched_function = op_policy ? weird_round_robin : sjf_sched;
+    FILE *config_file = fopen("config_file", "r");
+    int print_config = 0;
+    scheduler sched_function = NULL;
+    int use_input_file;
+    int sleep_between_commands;
 
-    // printf("The system is initializing");
-    // fflush(stdout);
-    // for(int i=0; i<3; ++i) {
-    //     printf(".");
-    //     fflush(stdout);
-    //     sleep(1);
-    // }
+    char cmd[100];
+    char opt;
+    while(!feof(config_file)) {
+        fscanf(config_file, "%s = %c\n", cmd, &opt);
 
-    // printf("\nready to go!!\n");
-    // sleep(1);
-
-
-    int print_config = PRINT_EXECUTING_PID | PRINT_PROGRAM_COUNTER | PRINT_VARIABLES | PRINT_PARENT_PID;
+        if(strcmp(cmd, "PRINT_EXECUTING_PID") == 0 && opt == 'Y') print_config |= PRINT_EXECUTING_PID;
+        if(strcmp(cmd, "PRINT_PRIORITY") == 0 && opt == 'Y') print_config |= PRINT_PRIORITY;
+        if(strcmp(cmd, "PRINT_QUANTUM") == 0 && opt == 'Y') print_config |= PRINT_QUANTUM;
+        if(strcmp(cmd, "PRINT_VARIABLES") == 0 && opt == 'Y') print_config |= PRINT_VARIABLES;
+        if(strcmp(cmd, "PRINT_PROGRAM_COUNTER") == 0 && opt == 'Y') print_config |= PRINT_PROGRAM_COUNTER;
+        if(strcmp(cmd, "PRINT_USED_CPU_TIME") == 0 && opt == 'Y') print_config |= PRINT_USED_CPU_TIME;
+        if(strcmp(cmd, "PRINT_PARENT_PID") == 0 && opt == 'Y') print_config |= PRINT_PARENT_PID;
+        if(strcmp(cmd, "PRINT_BLOCKED") == 0 && opt == 'Y') print_config |= PRINT_BLOCKED;
+        if(strcmp(cmd, "PRINT_READY") == 0 && opt == 'Y') print_config |= PRINT_READY;
+        if(strcmp(cmd, "PRINT_USED_QUANTUM") == 0 && opt == 'Y') print_config |= PRINT_USED_QUANTUM;
+        if(strcmp(cmd, "USE_ROUND_ROBIN") == 0) sched_function = (opt == 'Y') ? weird_round_robin : sjf_sched;
+        if(strcmp(cmd, "USE_CONTROL_FILE") == 0) use_input_file = (opt == 'Y');
+        if(strcmp(cmd, "SLEEP_BETWEEN_COMMANDS") == 0) sleep_between_commands = (opt == 'Y');
+    }
 
     int fd[2];
 
@@ -47,6 +54,8 @@ int main() {
         while(1) {
             fscanf(file, " %c", &c);
             write(fd[1], &c, 1);
+
+            if(sleep_between_commands) sleep(1);
 
             if(c == 'M') break;
         }

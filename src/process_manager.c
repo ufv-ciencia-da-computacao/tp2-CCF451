@@ -114,9 +114,14 @@ void print_system_state(process_manager_t *pm) {
     int pc = pm->cpu.program_counter;
     int parent = process_table_get_parent_pid(&pm->table, pid);
 
-    char process_data[1000000];
+    char process_data[100000];
+    char blocked_str[100000];
+    char ready_str[100000];
     data_print_to_string(&pm->cpu.data_memory_ptr, process_data);
-    
+    blocked_print_to_string(&pm->blocked_queue, blocked_str);
+    ready_print_to_string(&pm->ready_queue, ready_str);
+    int cpu_time = process_table_get_used_time(&pm->table, pid) + pm->cpu.time_used;
+
     pid_t p = fork();
     if(p < 0) {
         fprintf(stderr, "Fork failed");
@@ -132,9 +137,17 @@ void print_system_state(process_manager_t *pm) {
         if(print_config & PRINT_EXECUTING_PID) {
             printf("Executing PID: %d\n", pid);
         } 
+        
+        if(print_config & PRINT_PROGRAM_COUNTER) {
+            printf("Program Counter: %d\n", pc);
+        }
 
         if(print_config & PRINT_PRIORITY) {
             printf("Priority: %d\n", priority);
+        }
+
+        if(print_config & PRINT_PARENT_PID) {
+            printf("Parent PID: %d\n", parent);
         }
 
         if(print_config & PRINT_QUANTUM) {
@@ -145,17 +158,22 @@ void print_system_state(process_manager_t *pm) {
             printf("Used in Quantum: %d\n", used_quantum);
         }
 
-        if(print_config & PRINT_PROGRAM_COUNTER) {
-            printf("Program Counter: %d\n", pc);
-        }
-
         if(print_config & PRINT_VARIABLES) {
             printf("Program Variables: %s\n", process_data);
         }
 
-        if(print_config & PRINT_PARENT_PID) {
-            printf("Parent PID: %d\n", parent);
+        if(print_config & PRINT_USED_CPU_TIME) {
+            printf("Used CPU time: %d\n", cpu_time);
         }
+
+        if(print_config & PRINT_BLOCKED) {
+            printf("Blocked Processes: %s\n", blocked_str);
+        }
+
+        if(print_config & PRINT_READY) {
+            printf("Ready Processes: %s\n", ready_str);
+        }
+
 
         printf("\n ------- \n\n");
 

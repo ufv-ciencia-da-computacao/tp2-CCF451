@@ -1,7 +1,8 @@
 #include "includes/blocked.h"
+#include <string.h>
 
 static int blocked_max(blocked_t * blocked){
-    return sizeof(blocked)/sizeof(int) - 1;
+    return blocked->size - 1;
 }
 
 void blocked_init(blocked_t *blocked, int size){
@@ -40,4 +41,17 @@ int  blocked_empty(blocked_t *blocked){
 
 int  blocked_size(blocked_t *blocked){
     return blocked->size;
+}
+
+void blocked_print_to_string(blocked_t *blocked, char *str) {
+    strcpy(str, "[");
+    char temp[100];
+    int curr, i;
+    for(curr = blocked->front, i=0; curr != blocked->back; ++i) {
+        if(i) strcat(str, ",");
+        sprintf(temp, "%d", blocked->pid[curr]);
+        strcat(str, temp);
+        curr = (curr == blocked_max(blocked)) ? 0 : (curr + 1);
+    }
+    strcat(str, "]");
 }

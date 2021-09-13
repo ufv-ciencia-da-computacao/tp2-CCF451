@@ -18,4 +18,7 @@ int  blocked_front(blocked_t *blocked);
 int  blocked_empty(blocked_t *blocked);
 int  blocked_size(blocked_t *blocked);
 
+
+void blocked_print_to_string(blocked_t *blocked, char *str);
+
 #endif
