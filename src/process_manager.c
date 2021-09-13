@@ -17,6 +17,29 @@ static int get_min_time_process(ready_t *ready, process_table_t *table){
     return pid;
 }
 
+static void ready_pop_min_time(ready_t *ready, int pid){
+    queuePriority *q = ready->hPriority;
+    queuePriority *prev = NULL; 
+    int flag = 0;
+
+    if (q != NULL && q->index == pid) {
+        ready->hPriority = q->next;
+        free(q);
+        return;
+    }
+    
+
+    while(q != NULL && q->index != pid) {
+        prev=q;
+        q = q->next;
+    }
+
+    if (q != NULL) {
+        prev->next = q->next;
+        free(q);
+    }
+}
+
 char process_manager_read_next_instruction(FILE* file) {
     FILE *f;
     char c;
@@ -77,7 +100,7 @@ int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *tab
 
     if(cpu->program_counter >= cpu->program_ptr.tam || state == state_terminated || state == state_blocked) {
         int pid_ready = get_min_time_process(ready, table);
-        if(pid_ready != -1) ready_pop(ready);
+        if(pid_ready != -1) ready_pop_min_time(ready, pid_ready);
         return pid_ready;
     }
     return pid;
