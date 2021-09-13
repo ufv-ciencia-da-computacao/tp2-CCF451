@@ -7,25 +7,10 @@
 
 static int get_min_time_process(ready_t *ready, process_table_t *table){
     queuePriority *q = NULL;
-    int min_time = 0x3f3f3f, pid;
+    int min_time = 0x3f3f3f, pid=-1;
 
     for(q = ready->hPriority; q ; q = q->next){
-        int t = process_table_get_program(table, q->index).tam - process_table_get_program_counter(table, q->index);
-        if(min_time > t) min_time = t, pid = q->index;
-    }
-
-    for(q = ready->mPriority; q ; q = q->next){
-        int t = process_table_get_program(table, q->index).tam - process_table_get_program_counter(table, q->index);
-        if(min_time > t) min_time = t, pid = q->index;
-    }
-
-    for(q = ready->lPriority; q ; q = q->next){
-        int t = process_table_get_program(table, q->index).tam - process_table_get_program_counter(table, q->index);
-        if(min_time > t) min_time = t, pid = q->index;
-    }
-
-    for(q = ready->vLPriority; q ; q = q->next){
-        int t = process_table_get_program(table, q->index).tam - process_table_get_program_counter(table, q->index);
+        int t = process_table_get_program(table, q->index).tam - process_table_get_program_counter(table, q->index)+1;
         if(min_time > t) min_time = t, pid = q->index;
     }
 
@@ -33,41 +18,26 @@ static int get_min_time_process(ready_t *ready, process_table_t *table){
 }
 
 static void ready_pop_min_time(ready_t *ready, int pid){
-    queuePriority *q = NULL;
-    queuePriority *aux = NULL;
+    queuePriority *q = ready->hPriority;
+    queuePriority *prev = NULL; 
     int flag = 0;
 
-    for(q = ready->hPriority; q && !flag; q = q->next){
-        if(q->next->index == pid){
-            flag = 1;
-            break;
-        }
+    if (q != NULL && q->index == pid) {
+        ready->hPriority = q->next;
+        free(q);
+        return;
+    }
+    
+
+    while(q != NULL && q->index != pid) {
+        prev=q;
+        q = q->next;
     }
 
-    for(q = ready->mPriority; q && !flag; q = q->next){
-        if(q->next->index == pid){
-            flag = 1;
-            break;
-        }
+    if (q != NULL) {
+        prev->next = q->next;
+        free(q);
     }
-
-    for(q = ready->lPriority; q && !flag; q = q->next){
-        if(q->next->index == pid){
-            flag = 1;
-            break;
-        }
-    }
-
-    for(q = ready->vLPriority; q && !flag; q = q->next){
-        if(q->next->index == pid){
-            flag = 1;
-            break;
-        }
-    }
-
-    aux = q->next;
-    q->next = aux->next;
-    free(aux);
 }
 
 char process_manager_read_next_instruction(FILE* file) {
@@ -126,14 +96,14 @@ int weird_round_robin(cpu_t *cpu, executing_t *exe, ready_t *ready, process_tabl
 }
 
 int sjf_sched(cpu_t *cpu, executing_t *exe, ready_t *ready, process_table_t *table, process_state state){
-    // printf("%d\n", cpu->program_ptr.tam);
-    if(cpu->program_counter >= cpu->program_ptr.tam) {
+    int pid = executing_get(exe);
+
+    if(cpu->program_counter >= cpu->program_ptr.tam || state == state_terminated || state == state_blocked) {
         int pid_ready = get_min_time_process(ready, table);
         if(pid_ready != -1) ready_pop_min_time(ready, pid_ready);
-
         return pid_ready;
     }
-    return executing_get(exe);
+    return pid;
 }
 
 void print_system_state(process_manager_t *pm) {
