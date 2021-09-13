@@ -94,7 +94,7 @@ void process_table_set_parent_pid(process_table_t *pt, int index, int parent_pid
 }
 
 int process_table_get_parent_pid(process_table_t *pt, int index) {
-    return pt->data[index].process.pid;
+    return pt->data[index].process.parent_pid;
 }
 
 int process_table_get_program_counter(process_table_t *pt, int index) {

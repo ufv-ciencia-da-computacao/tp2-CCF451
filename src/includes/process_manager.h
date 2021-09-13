@@ -13,7 +13,7 @@
 #define PRINT_QUANTUM               (1 << 2)
 #define PRINT_VARIABLES             (1 << 3)
 #define PRINT_PROGRAM_COUNTER       (1 << 4)
-#define PRINT_STATE                 (1 << 5)
+// #define PRINT_STATE                 (1 << 5)
 #define PRINT_USED_CPU_TIME         (1 << 6)
 #define PRINT_PARENT_PID            (1 << 7)
 #define PRINT_BLOCKED               (1 << 8)

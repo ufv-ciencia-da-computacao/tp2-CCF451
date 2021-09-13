@@ -142,6 +142,10 @@ void print_system_state(process_manager_t *pm) {
     int quantum = pm->cpu.quantum;
     int used_quantum = pm->cpu.time_used;
     int pc = pm->cpu.program_counter;
+    int parent = process_table_get_parent_pid(&pm->table, pid);
+
+    char process_data[1000000];
+    data_print_to_string(&pm->cpu.data_memory_ptr, process_data);
     
     pid_t p = fork();
     if(p < 0) {
@@ -173,6 +177,14 @@ void print_system_state(process_manager_t *pm) {
 
         if(print_config & PRINT_PROGRAM_COUNTER) {
             printf("Program Counter: %d\n", pc);
+        }
+
+        if(print_config & PRINT_VARIABLES) {
+            printf("Program Variables: %s\n", process_data);
+        }
+
+        if(print_config & PRINT_PARENT_PID) {
+            printf("Parent PID: %d\n", parent);
         }
 
         printf("\n ------- \n\n");

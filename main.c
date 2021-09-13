@@ -22,7 +22,7 @@ int main() {
     sleep(1);
 
 
-    int print_config = PRINT_EXECUTING_PID | PRINT_USED_QUANTUM | PRINT_PROGRAM_COUNTER;
+    int print_config = PRINT_EXECUTING_PID | PRINT_PROGRAM_COUNTER | PRINT_VARIABLES | PRINT_PARENT_PID;
 
     int fd[2];
 
